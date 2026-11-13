@@ -20,3 +20,19 @@ stages:
       hash: md5
       md5: 5594ad415359479b0dd8404bc8dfb360
       size: 179
+  compare:
+    cmd: uv run python src/mlops_customer_churn/compare_models.py
+    deps:
+    - path: data/raw/Telco-Customer-Churn.csv
+      hash: md5
+      md5: 3b0bfab28a8101b4e4fdd08025a5c235
+      size: 970457
+    - path: src/mlops_customer_churn/compare_models.py
+      hash: md5
+      md5: 383f262e9d07e5c471a2b2a50b0f69bd
+      size: 3475
+    outs:
+    - path: reports/model_comparison.json
+      hash: md5
+      md5: ca4b5b036e018bd56baf073b3dda6675
+      size: 1628

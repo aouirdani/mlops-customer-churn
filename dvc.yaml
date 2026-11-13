@@ -8,3 +8,10 @@ stages:
     - models/churn_model.joblib
     metrics:
     - reports/metrics.json
+  compare:
+    cmd: uv run python src/mlops_customer_churn/compare_models.py
+    deps:
+    - data/raw/Telco-Customer-Churn.csv
+    - src/mlops_customer_churn/compare_models.py
+    metrics:
+    - reports/model_comparison.json
