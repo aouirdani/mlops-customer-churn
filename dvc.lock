@@ -1,0 +1,22 @@
+schema: '2.0'
+stages:
+  train:
+    cmd: uv run python src/mlops_customer_churn/train.py
+    deps:
+    - path: data/raw/Telco-Customer-Churn.csv
+      hash: md5
+      md5: 3b0bfab28a8101b4e4fdd08025a5c235
+      size: 970457
+    - path: src/mlops_customer_churn/train.py
+      hash: md5
+      md5: bab87cbc65fb2e43a5855c497009463c
+      size: 3585
+    outs:
+    - path: models/churn_model.joblib
+      hash: md5
+      md5: cc0e1f1eefa5bd0ec01440c731ccaeef
+      size: 8474
+    - path: reports/metrics.json
+      hash: md5
+      md5: 5594ad415359479b0dd8404bc8dfb360
+      size: 179

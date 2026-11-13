@@ -5,7 +5,4 @@ __pycache__/
 .ruff_cache/
 .DS_Store
 
-data/raw/
 data/processed/
-models/
-reports/

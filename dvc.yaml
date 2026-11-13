@@ -1,0 +1,10 @@
+stages:
+  train:
+    cmd: uv run python src/mlops_customer_churn/train.py
+    deps:
+    - data/raw/Telco-Customer-Churn.csv
+    - src/mlops_customer_churn/train.py
+    outs:
+    - models/churn_model.joblib
+    metrics:
+    - reports/metrics.json
