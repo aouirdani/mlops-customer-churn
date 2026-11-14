@@ -1,7 +1,7 @@
 
 import json
 from pathlib import Path
-
+import mlflow
 import pandas as pd
 
 from sklearn.compose import ColumnTransformer
@@ -100,7 +100,9 @@ def main():
         "f1": "f1",
         "roc_auc": "roc_auc",
     }
-
+    # Configuration du suivi des expériences MLflow
+    mlflow.set_tracking_uri("http://127.0.0.1:5000")
+    mlflow.set_experiment("customer-churn-model-comparison")
     results = {}
 
     for name, classifier in models.items():
@@ -129,6 +131,34 @@ def main():
         }
 
         print(json.dumps(results[name], indent=4))
+
+        # Enregistrer les résultats dans MLflow
+        with mlflow.start_run(run_name=name):
+            mlflow.set_tag("model_type", name)
+            mlflow.set_tag("dataset", "telco-customer-churn")
+
+            mlflow.log_param("model", name)
+            mlflow.log_param("cv_folds", 5)
+            mlflow.log_param("cv_random_state", 42)
+
+            model_params = {
+                f"model_{key}": value
+                for key, value in classifier.get_params().items()
+            }
+
+            mlflow.log_params(model_params)
+
+            # Moyennes et écarts-types de validation croisée
+            for metric, values in results[name].items():
+                mlflow.log_metric(
+                    f"{metric}_mean", values["mean"]
+                )
+                mlflow.log_metric(
+                    f"{metric}_std", values["std"]
+                )
+
+            print(f"Expérience MLflow enregistrée : {name}")
+
 
     REPORT_PATH.parent.mkdir(
         parents=True, exist_ok=True
