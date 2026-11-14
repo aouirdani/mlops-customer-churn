@@ -22,3 +22,12 @@ stages:
     - src/mlops_customer_churn/tune.py
     metrics:
     - reports/tuning_results.json
+  evaluate:
+    cmd: uv run python src/mlops_customer_churn/evaluate.py
+    deps:
+    - data/raw/Telco-Customer-Churn.csv
+    - models/churn_model.joblib
+    - reports/tuning_results.json
+    - src/mlops_customer_churn/evaluate.py
+    metrics:
+    - reports/final_evaluation.json
