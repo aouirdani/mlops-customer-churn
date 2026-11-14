@@ -29,8 +29,8 @@ stages:
       size: 970457
     - path: src/mlops_customer_churn/compare_models.py
       hash: md5
-      md5: 383f262e9d07e5c471a2b2a50b0f69bd
-      size: 3475
+      md5: df8930909f7b5d591726b78a688bc0a3
+      size: 4589
     outs:
     - path: reports/model_comparison.json
       hash: md5
