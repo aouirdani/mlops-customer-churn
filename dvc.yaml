@@ -15,3 +15,10 @@ stages:
     - src/mlops_customer_churn/compare_models.py
     metrics:
     - reports/model_comparison.json
+  tune:
+    cmd: uv run python src/mlops_customer_churn/tune.py
+    deps:
+    - data/raw/Telco-Customer-Churn.csv
+    - src/mlops_customer_churn/tune.py
+    metrics:
+    - reports/tuning_results.json

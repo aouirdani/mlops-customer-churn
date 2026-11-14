@@ -36,3 +36,19 @@ stages:
       hash: md5
       md5: ca4b5b036e018bd56baf073b3dda6675
       size: 1628
+  tune:
+    cmd: uv run python src/mlops_customer_churn/tune.py
+    deps:
+    - path: data/raw/Telco-Customer-Churn.csv
+      hash: md5
+      md5: 3b0bfab28a8101b4e4fdd08025a5c235
+      size: 970457
+    - path: src/mlops_customer_churn/tune.py
+      hash: md5
+      md5: 559d0e9f2871dd2228fd791b90ad6159
+      size: 4763
+    outs:
+    - path: reports/tuning_results.json
+      hash: md5
+      md5: 83caebd48d21d3a21c8fb92277147e45
+      size: 959
