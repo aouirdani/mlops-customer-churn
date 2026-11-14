@@ -8,7 +8,7 @@ on:
     branches: [main]
 
 jobs:
-  tests:
+  tests-and-build:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,14 +20,71 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Set up Python
+      - name: Install Python
         run: uv python install 3.12
 
       - name: Install dependencies
         run: uv sync --locked
 
-      - name: Run validation tests
-        run: uv run pytest tests/test_validation.py -v
+      - name: Download dataset
+        run: |
+          mkdir -p data/raw
+          curl --fail --location --retry 3 \
+            "https://raw.githubusercontent.com/IBM/telco-customer-churn-on-icp4d/master/data/Telco-Customer-Churn.csv" \
+            -o data/raw/Telco-Customer-Churn.csv
+
+      - name: Validate dataset
+        run: |
+          uv run python -c "
+          import pandas as pd
+          df = pd.read_csv('data/raw/Telco-Customer-Churn.csv')
+          assert df.shape == (7043, 21)
+          assert 'Churn' in df.columns
+          print('Dataset validated:', df.shape)
+          "
+
+      - name: Train model
+        run: |
+          uv run python src/mlops_customer_churn/train.py
+
+      - name: Run all tests
+        run: uv run pytest tests/ -v
 
       - name: Check Python syntax
         run: uv run python -m compileall -q src/
+
+      - name: Build Docker image
+        run: docker build -t customer-churn-api:ci .
+
+      - name: Start Docker container
+        run: |
+          docker run -d \
+            --name customer-churn-api-ci \
+            -p 127.0.0.1:8001:8000 \
+            customer-churn-api:ci
+
+      - name: Test Docker API
+        run: |
+          for i in $(seq 1 30); do
+            if curl --fail --silent \
+              http://127.0.0.1:8001/health \
+              > health.json; then
+              cat health.json
+              uv run python -c "
+          import json
+          with open('health.json') as f:
+              data = json.load(f)
+          assert data['status'] == 'ok'
+          assert data['model_loaded'] is True
+          "
+              exit 0
+            fi
+            sleep 2
+          done
+
+          docker logs customer-churn-api-ci
+          exit 1
+
+      - name: Stop container
+        if: always()
+        run: docker rm -f customer-churn-api-ci || true
