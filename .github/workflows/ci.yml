@@ -1,6 +1,10 @@
 
 name: MLOps CI
 
+permissions:
+  contents: read
+  packages: write
+
 on:
   push:
     branches: [main]
@@ -84,6 +88,25 @@ jobs:
 
           docker logs customer-churn-api-ci
           exit 1
+
+      - name: Login to GitHub Container Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish Docker image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          IMAGE=ghcr.io/aouirdani/mlops-customer-churn
+
+          docker tag customer-churn-api:ci $IMAGE:latest
+          docker tag customer-churn-api:ci $IMAGE:${GITHUB_SHA}
+
+          docker push $IMAGE:latest
+          docker push $IMAGE:${GITHUB_SHA}
 
       - name: Stop container
         if: always()
